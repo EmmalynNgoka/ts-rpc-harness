@@ -1,0 +1,21 @@
+{
+  "name": "ts-rpc-harness",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev:anvil": "anvil -p 8545 --block-time 1",
+    "dev:hardhat": "hardhat node --hostname 127.0.0.1 --port 8545",
+    "pretest": "ts-node -T src/seed.ts",
+    "test": "vitest run --reporter=verbose",
+    "metrics": "ts-node -T src/metrics.ts --runs 150 --outfile metrics.json",
+    "gate": "node -e \"const m=require('./metrics.json'); const fail=(m.rpc.p95_ms>200)||(m.rpc.p99_ms>300)||(m.block.avg_ms>1400)||(m.indexer.lag_blocks>2); if(fail){console.error('GATE FAIL',m); process.exit(1)} else {console.log('GATE PASS',m)}\""
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.13.1",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2",
+    "vitest": "^2.1.1"
+  }
+}

@@ -1,0 +1,40 @@
+name: ts-rpc-harness
+on:
+  push: { branches: [ main ] }
+  pull_request: {}
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+        node: [18.x, 20.x, 22.x]
+        rpc: [anvil, hardhat]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: ${{ matrix.node }} }
+      - run: npm ci
+      - name: Start RPC (${{ matrix.rpc }})
+        if: matrix.rpc == 'anvil'
+        run: |
+          curl -L https://foundry.paradigm.xyz | bash
+          echo "$HOME/.foundry/bin" >> $GITHUB_PATH
+          foundryup
+          anvil -p 8545 --block-time 1 &
+          sleep 2
+      - name: Start RPC (${{ matrix.rpc }})
+        if: matrix.rpc == 'hardhat'
+        run: |
+          npx --yes hardhat@latest node --hostname 127.0.0.1 --port 8545 &
+          sleep 4
+      - run: |
+          echo "RPC_URL=http://127.0.0.1:8545" >> $GITHUB_ENV
+          echo "MNEMONIC=test test test test test test test test test test test junk" >> $GITHUB_ENV
+      - run: npm test
+      - run: npm run metrics -- --runs 200 --outfile metrics.json
+      - run: npm run gate
+      - uses: actions/upload-artifact@v4
+        with:
+          name: rpc-metrics-${{ matrix.rpc }}-node${{ matrix.node }}
+          path: metrics.json
