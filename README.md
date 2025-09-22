@@ -46,14 +46,14 @@ npm run gate
 
 •	 CLI ↔ RPC parity check (nonce via eth_getTransactionCount)
  
- Metrics & Gates
+Metrics & Gates
 CI enforces: - RPC latency P95 ≤ 200 ms, P99 ≤ 300 ms - Avg block interval ≤ 1.4 s - Indexer lag ≤ 2 blocks
 Metrics script writes JSON (metrics.json) and fails the build if thresholds exceeded.
  
 CI Matrix
 GitHub Actions runs on: - OS: ubuntu-latest - Node: 18.x, 20.x, 22.x - RPC backends: anvil, hardhat
  
- Ephemeral Environments
+Ephemeral Environments
 Wallets and state are seeded automatically via src/seed.ts.
 Deterministic mnemonic:
 test test test test test test test test test test test junk
